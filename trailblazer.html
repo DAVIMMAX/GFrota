@@ -304,7 +304,8 @@
                 background: none;
                 width: 210mm;
                 height: 297mm;
-                overflow: hidden !important;
+                overflow: hidden;
+                !important;
                 scale: 0.90;
 
             }
@@ -947,28 +948,28 @@
         <div class="damage-grid">
             <div class="damage-image-box">
                 <div class="image-placeholder-frb">
-                    <img src="/img/vtr_front.png"
+                    <img src="/img/Trailblazer/front.png"
                         alt="Frente da Viatura">
                 </div>
                 <span>FRENTE</span>
             </div>
             <div class="damage-image-box">
                 <div class="image-placeholder-frb">
-                    <img src="/img/vtr_back.png"
+                    <img src="/img/Trailblazer/back.png"
                         alt="Traseira da Viatura">
                 </div>
                 <span>TRASEIRA</span>
             </div>
             <div class="damage-image-box">
                 <div class="image-placeholder">
-                    <img src="/img/vtr_left.png"
+                    <img src="/img/Trailblazer/left.png"
                         alt="Esquerda da Viatura">
                 </div>
                 <span>LATERAL DIREITA</span>
             </div>
             <div class="damage-image-box">
                 <div class="image-placeholder">
-                    <img src="/img/vtr_right.png"
+                    <img src="/img/Trailblazer/right.png"
                         alt="Direita da Viatura">
                 </div>
                 <span>LATERAL ESQUERDA</span>
@@ -1026,7 +1027,6 @@
         <div class="no-print" style="text-align: center; margin-top: 0px;">
             <button>Gerar Imagem para Impressão</button>
         </div>
-
         <script>
             function generateImageForPrint() {
                 const form = document.querySelector('.form-container');
@@ -1048,6 +1048,7 @@
 
                     const printWindow = window.open('', '_blank');
                     printWindow.document.write(`
+                    <html>
                         <head>
                             <title>Ficha de Vistoria - Impressão</title>
                             <style>
@@ -1058,7 +1059,8 @@
                         </head>
                         <body>
                             <img src="${imageData}">
-                        </body> 
+                        </body>
+                    </html>
                 `);
                     printWindow.document.close();
 
@@ -1067,9 +1069,10 @@
                         printWindow.print();
                     };
                     generateButton.style.display = 'block';
-                });
-                document.querySelector('.no-print button').addEventListener('click', generateImageForPrint);
+                })
+                    ;
             }
+            document.querySelector('.no-print button').addEventListener('click', generateImageForPrint);
         </script>
     </div>
     </div>
