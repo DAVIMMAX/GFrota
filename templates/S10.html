@@ -304,7 +304,8 @@
                 background: none;
                 width: 210mm;
                 height: 297mm;
-                overflow: hidden !important;
+                overflow: hidden;
+                !important;
                 scale: 0.90;
 
             }
@@ -337,13 +338,16 @@
 -->
     <div class="form-container">
         <div class="header">
-            <img class="img-title-left" src="../img/brasao_falcao.png" alt="Brasão Falcão">
+            <img class="img-title-left"
+                src="../img/brasao_falcao.png" alt="Brasão Falcão">
             <div>
                 Grupamento de Operações Aéreas
                 Departamento Estadual de Aviação
                 Estado de Alagoas
             </div>
-            <img class="img-title-right" src="../img/Brasão-PMAL.png" alt="Brasão Falcão">
+            <img class="img-title-right"
+                src="../img/Brasão-PMAL.png"
+                alt="Brasão Falcão">
         </div>
 
 
@@ -932,32 +936,36 @@
             <div>A - AMASSADO |</div>
             <div>F - FALTANDO |</div>
         </div>
-
+      
         <div class="observation">
             <textarea placeholder="Observações..."></textarea>
         </div>
         <div class="damage-grid">
             <div class="damage-image-box">
                 <div class="image-placeholder-frb">
-                    <img src="../img/S10/front.png" alt="Frente da Viatura">
+                    <img src="../img/S10/front.png"
+                        alt="Frente da Viatura">
                 </div>
                 <span>FRENTE</span>
             </div>
             <div class="damage-image-box">
                 <div class="image-placeholder-frb">
-                    <img src="../img/S10/back.png" alt="Traseira da Viatura">
+                    <img src="../img/S10/back.png"
+                        alt="Traseira da Viatura">
                 </div>
                 <span>TRASEIRA</span>
             </div>
             <div class="damage-image-box">
                 <div class="image-placeholder">
-                    <img src="../img/S10/left.png" alt="Esquerda da Viatura">
+                    <img src="../img/S10/left.png"
+                        alt="Esquerda da Viatura">
                 </div>
                 <span>LATERAL DIREITA</span>
             </div>
             <div class="damage-image-box">
                 <div class="image-placeholder">
-                    <img src="../img/S10/right.png" alt="Direita da Viatura">
+                    <img src="../img/S10/right.png"
+                        alt="Direita da Viatura">
                 </div>
                 <span>LATERAL ESQUERDA</span>
             </div>
@@ -1014,33 +1022,28 @@
         <div class="no-print" style="text-align: center; margin-top: 0px;">
             <button>Gerar Imagem para Impressão</button>
         </div>
+        <script>
+            function generateImageForPrint() {
+                const form = document.querySelector('.form-container');
+                const generateButton = document.querySelector('.no-print');
+
+                generateButton.style.display = 'none';
+
+                // Usa html2canvas para capturar o formulário como uma imagem
+                html2canvas(form, {
+                    scale: 2,
+                    logging: true,
+                    useCORS: true,
+                    width: form.scrollWidth,
+                    height: form.scrollHeight
+                }).then(canvas => {
+
+                    const imageData = canvas.toDataURL('image/png');
 
 
-    </div>
-    </div>
-    <script>
-    function generateImageForPrint() {
-        const form = document.querySelector('.form-container');
-        const generateButton = document.querySelector('.no-print');
-
-        generateButton.style.display = 'none';
-
-        // Usa html2canvas para capturar o formulário como uma imagem
-        html2canvas(form, {
-            scale: 2,
-            logging: true,
-            useCORS: true,
-            width: form.scrollWidth,
-            height: form.scrollHeight
-        }).then(canvas => {
-            
-            const imageData = canvas.toDataURL('image/png');
-            
-            
-            const printWindow = window.open('', '_blank');
-            printWindow.document.write(`
-                    
-                            <title>Ficha de Vistoria - Impressão</title>
+                    const printWindow = window.open('', '_blank');
+                    printWindow.document.write(`
+                    <title>Ficha de Vistoria - Impressão</title>
                             <style>
                                 @page { size: A4; margin: 0; }
                                 body { margin: 0; padding: 0; width: 210mm; height: 297mm; }
@@ -1049,19 +1052,19 @@
                         </head>
                             <img src="${imageData}">
                 `);
-                printWindow.document.close();
-            
-            
-            printWindow.onload = function() {
-                printWindow.print();
-            };
-            generateButton.style.display = 'block';
-        })
-        ;
-    }
-    document.querySelector('.no-print button').addEventListener('click', generateImageForPrint);
-</script>
-</div>
+                    printWindow.document.close();
+
+
+                    printWindow.onload = function () {
+                        printWindow.print();
+                    };
+                    generateButton.style.display = 'block';
+                })
+                    ;
+            }
+            document.querySelector('.no-print button').addEventListener('click', generateImageForPrint);
+        </script>
+    </div>
     </div>
 
 </body>
