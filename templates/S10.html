@@ -27,6 +27,22 @@
             box-sizing: border-box;
         }
 
+        /* Estilos para o contêiner da imagem e as marcações */
+        .damage-image-box {
+            position: relative; /* Essencial para o posicionamento absoluto das marcações */
+        }
+
+        .damage-marker {
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            background-color: transparent;
+            border: 2px solid black;
+            border-radius: 50%;
+            transform: translate(-50%, -50%); /* Centraliza o marcador no ponto do clique */
+            cursor: pointer;
+        }
+
         .header {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -189,7 +205,7 @@
         }
 
         .damage-image-box {
-            border: 1px solid black;
+            border: 1px solid black; /* A posição relativa foi movida para a regra acima */
             padding: 2px;
             text-align: center;
             font-size: 8px;
@@ -304,8 +320,7 @@
                 background: none;
                 width: 210mm;
                 height: 297mm;
-                overflow: hidden;
-                !important;
+                overflow: hidden !important;
                 scale: 0.90;
 
             }
@@ -338,23 +353,20 @@
 -->
     <div class="form-container">
         <div class="header">
-            <img class="img-title-left"
-                src="../img/brasao_falcao.png" alt="Brasão Falcão">
+            <img class="img-title-left" src="../img/brasao_falcao.png" alt="Brasão Falcão">
             <div>
                 Grupamento de Operações Aéreas
                 Departamento Estadual de Aviação
                 Estado de Alagoas
             </div>
-            <img class="img-title-right"
-                src="../img/Brasão-PMAL.png"
-                alt="Brasão Falcão">
+            <img class="img-title-right" src="../img/Brasão-PMAL.png" alt="Brasão Falcão">
         </div>
 
 
         <table class="info-table">
             <tr>
                 <td colspan="1">OPM: <input type="text" style="width: 400px;" value="GRAER"></td>
-                <td colspan="1">DATA: <input type="text"></td>
+                <td colspan="1">DATA: <input type="text" id="date-input" placeholder="dd/mm/aaaa" maxlength="10"></td>
                 <td colspan="2">PREFIXO: <input type="text" style="width: 170px;"></td>
             </tr>
             <tr>
@@ -941,28 +953,28 @@
             <textarea placeholder="Observações..."></textarea>
         </div>
         <div class="damage-grid">
-            <div class="damage-image-box">
+            <div class="damage-image-box damage-container">
                 <div class="image-placeholder-frb">
                     <img src="../img/S10/front.png"
                         alt="Frente da Viatura">
                 </div>
                 <span>FRENTE</span>
             </div>
-            <div class="damage-image-box">
+            <div class="damage-image-box damage-container">
                 <div class="image-placeholder-frb">
                     <img src="../img/S10/back.png"
                         alt="Traseira da Viatura">
                 </div>
                 <span>TRASEIRA</span>
             </div>
-            <div class="damage-image-box">
+            <div class="damage-image-box damage-container">
                 <div class="image-placeholder">
                     <img src="../img/S10/left.png"
                         alt="Esquerda da Viatura">
                 </div>
                 <span>LATERAL DIREITA</span>
             </div>
-            <div class="damage-image-box">
+            <div class="damage-image-box damage-container">
                 <div class="image-placeholder">
                     <img src="../img/S10/right.png"
                         alt="Direita da Viatura">
@@ -1023,27 +1035,28 @@
             <button>Gerar Imagem para Impressão</button>
         </div>
         <script>
-            function generateImageForPrint() {
-                const form = document.querySelector('.form-container');
-                const generateButton = document.querySelector('.no-print');
+    function generateImageForPrint() {
+        const form = document.querySelector('.form-container');
+        const generateButton = document.querySelector('.no-print');
 
-                generateButton.style.display = 'none';
+        generateButton.style.display = 'none';
 
-                // Usa html2canvas para capturar o formulário como uma imagem
-                html2canvas(form, {
-                    scale: 2,
-                    logging: true,
-                    useCORS: true,
-                    width: form.scrollWidth,
-                    height: form.scrollHeight
-                }).then(canvas => {
-
-                    const imageData = canvas.toDataURL('image/png');
-
-
-                    const printWindow = window.open('', '_blank');
-                    printWindow.document.write(`
-                    <title>Ficha de Vistoria - Impressão</title>
+        // Usa html2canvas para capturar o formulário como uma imagem
+        html2canvas(form, {
+            scale: 2,
+            logging: true,
+            useCORS: true,
+            width: form.scrollWidth,
+            height: form.scrollHeight
+        }).then(canvas => {
+            
+            const imageData = canvas.toDataURL('image/png');
+            
+            
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                    
+                            <title>Ficha de Vistoria - Impressão</title>
                             <style>
                                 @page { size: A4; margin: 0; }
                                 body { margin: 0; padding: 0; width: 210mm; height: 297mm; }
@@ -1052,18 +1065,102 @@
                         </head>
                             <img src="${imageData}">
                 `);
-                    printWindow.document.close();
+                printWindow.document.close();
+            
+            
+            printWindow.onload = function() {
+                printWindow.print();
+            };
+            generateButton.style.display = 'block';
+        })
+        ;
+    }
+    document.querySelector('.no-print button').addEventListener('click', generateImageForPrint);
 
+    // --- LÓGICA PARA ADICIONAR MARCAÇÕES ---
 
-                    printWindow.onload = function () {
-                        printWindow.print();
-                    };
-                    generateButton.style.display = 'block';
-                })
-                    ;
+    // Seleciona todos os contêineres de imagem
+    const damageContainers = document.querySelectorAll('.damage-container');
+
+    damageContainers.forEach(container => {
+        // Armazena as marcações para cada contêiner individualmente
+        let markers = [];
+
+        container.addEventListener('click', function(event) {
+            // Impede a criação de marcadores se o clique for em um marcador existente
+            if (event.target.classList.contains('damage-marker')) {
+                return;
             }
-            document.querySelector('.no-print button').addEventListener('click', generateImageForPrint);
-        </script>
+
+            const rect = container.getBoundingClientRect();
+            const offsetX = event.clientX - rect.left;
+            const offsetY = event.clientY - rect.top;
+
+            // Converte as coordenadas de pixel para percentual
+            const xPercent = (offsetX / container.clientWidth) * 100;
+            const yPercent = (offsetY / container.clientHeight) * 100;
+
+            // Adiciona a nova marcação ao array
+            markers.push({ x: xPercent, y: yPercent });
+
+            // Renderiza todas as marcações
+            renderMarkers(container, markers);
+        });
+    });
+
+    function renderMarkers(container, markers) {
+        // Remove marcações antigas para não duplicar
+        container.querySelectorAll('.damage-marker').forEach(m => m.remove());
+
+        // Cria e adiciona cada marcação na tela
+        markers.forEach(markerInfo => {
+            const markerElement = document.createElement('div');
+            markerElement.className = 'damage-marker';
+            markerElement.style.left = `${markerInfo.x}%`;
+            markerElement.style.top = `${markerInfo.y}%`;
+
+            // Adiciona um evento de clique para remover este marcador específico
+            markerElement.addEventListener('click', (event) => {
+                // Impede que o clique se propague para o contêiner da imagem,
+                // evitando que um novo marcador seja criado no mesmo lugar.
+                event.stopPropagation();
+
+                // Encontra o índice do marcador clicado no array.
+                // A comparação de referência (m === markerInfo) funciona por causa do closure.
+                const indexToRemove = markers.findIndex(m => m === markerInfo);
+
+                // Se o marcador for encontrado, remove-o do array.
+                if (indexToRemove > -1) {
+                    markers.splice(indexToRemove, 1);
+                }
+
+                // Re-renderiza os marcadores para refletir a remoção.
+                renderMarkers(container, markers);
+            });
+
+            container.appendChild(markerElement);
+        });
+    }
+
+    // --- LÓGICA PARA MÁSCARA DE DATA ---
+    const dateInput = document.getElementById('date-input');
+
+    dateInput.addEventListener('input', function(e) {
+        // Remove tudo que não for dígito
+        let value = e.target.value.replace(/\D/g, '');
+        
+        // Limita ao tamanho máximo de data (8 dígitos: ddmmyyyy)
+        value = value.substring(0, 8);
+
+        if (value.length > 4) {
+            e.target.value = `${value.substring(0, 2)}/${value.substring(2, 4)}/${value.substring(4, 8)}`;
+        } else if (value.length > 2) {
+            e.target.value = `${value.substring(0, 2)}/${value.substring(2, 4)}`;
+        } else {
+            e.target.value = value;
+        }
+    });
+</script>
     </div>
     </div>
 

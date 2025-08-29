@@ -3,37 +3,15 @@
   "vehicles": [
     {
       "name": "L200",
+      "prefix": "",
+      "mark":"",
+      "model":"",
+      "plate":"",
       "images": {
         "front": "img/L200/front.jpg",
         "back": "img/L200/back.jpg",
         "left": "img/L200/left.jpg",
         "right": "img/L200/right.jpg"
-      }
-    },
-    {
-      "name": "Trailblazer",
-      "images": {
-        "front": "img/Trailblazer/front.png",
-        "back": "img/Trailblazer/back.png",
-        "left": "img/Trailblazer/left.png",
-        "right": "img/Trailblazer/right.png"
-      }
-    },
-    {
-      "name": "Van",
-      "images": {
-        "front": "img/Van/front.jpg",
-        "back": "img/Van/back.jpg",
-        "left": "img/Van/left.jpg",
-        "right": "img/Van/right.jpg"
-      }
-    },{
-      "name": "S10",
-      "images": {
-        "front": "img/S10/front.jpg",
-        "back": "img/S10/back.jpg",
-        "left": "img/S10/left.jpg",
-        "right": "img/S10/right.jpg"
       }
     }
     
