@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-p7^e$+_hltu%#p-nj%zw!)8&r-_lyaznykbn(+wglo29$+2s%p
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -129,5 +129,12 @@ STATICFILES_DIRS = [
     BASE_DIR / 'static',
 ]
 
+# Configuração de media (uploads)
+MEDIA_URL = '/media/' # URL para acessar os arquivos de mídia
+MEDIA_ROOT = BASE_DIR # Diretório onde os arquivos de mídia são armazenados
+
 CRISPY_DEFAULT_TEMPLATE_PACK = 'bootstrap4'
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
+
+LOGIN_REDIRECT_URL = 'usuarios:home'
+LOGOUT_REDIRECT_URL = 'login'

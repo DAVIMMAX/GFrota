@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block title %}GFrota - Lista de Apresentações{% endblock %}
+
+{% block content %}
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Apresentações Cadastradas</h1>
+    {% if request.user.is_cadastrador %}
+    <a href="{% url 'operacional:cadastro_apresentacao' %}"
+        class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
+        <i class="fas fa-user-plus fa-sm text-white-50"></i> Nova Apresentação
+    </a>
+    {% endif %}
+</div>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Lista de Apresentações Cadastradas</h6>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover" id="dataTable" width="100%" cellspacing="0">
+                <thead class="thead-light">
+                    <tr>
+                        <th>Viaturas</th>
+                        <th>Aeronaves</th>
+                        <th>Turno</th>
+                        <th>Horário Inicial</th>
+                        <th>Horário Final</th>
+                        <th>Observação</th>
+                        <th>Usuários</th>
+                        <th class="text-center" style="width: 100px;">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for apresentacao in apresentacoes %}
+                    <tr>
+                        <td class="align-middle"><strong>{{ apresentacao.viatura_id|default:"-" }}</strong></td>
+                        <td class="align-middle">{{ apresentacao.aeronave_id|default:"-" }}</td>
+                        <td class="align-middle">{{ apresentacao.turno|default:"-" }}</td>
+                        <td class="align-middle">{{ apresentacao.horario_inicial|default:"-" }}</td>
+                        <td class="align-middle">{{ apresentacao.horario_final|default:"-" }}</td>
+                        <td class="align-middle">{{ apresentacao.observacao|default:"-" }}</td>
+                        <td class="align-middle">
+                            <span class="badge badge-primary">{{ apresentacao.usuarios|default:"Nenhuma" }}</span>
+                        </td>
+                        <td class="text-center align-middle">
+                            <a href="#" class="btn btn-info btn-circle btn-sm" title="Ver Detalhes">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            {% if request.user.is_operador %}
+                            <a href="#" class="btn btn-warning btn-circle btn-sm" title="Editar">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center py-4">
+                            Nenhuma apresentação cadastrada no sistema ainda.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

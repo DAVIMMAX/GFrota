@@ -1,0 +1,193 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block title %}GFrota - Cadastro de Serviço Operacional{% endblock %}
+
+
+{% block content %}
+<div class="row">
+    <div class="col-xl-8 col-lg-10 mx-auto">
+        <!-- Cartão Principal -->
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">Preencha os Dados do Serviço Operacional a ser cadastrado
+                </h6>
+            </div>
+
+            <div class="card-body">
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+                    {% crispy form %}
+
+                    <hr class="mt-4">
+
+                    <div class="d-flex justify-content-end mt-3">
+                        <a href="{% url 'operacional:listar_apresentacoes' %}" class="btn btn-secondary mr-2">
+                            <i class="fas fa-times fa-sm text-white-50 mr-1"></i> Cancelar
+                        </a>
+                        <button type="button" id="btnAbreConfirmacao" class="btn btn-primary">
+                            <i class="fas fa-save fa-sm text-white-50 mr-1"></i> Cadastrar Serviço Operacional
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Confirmação -->
+<div class="modal fade" id="confirmacaoModal" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="modalLabel"><i class="fas fa-check-circle mr-2"></i>Confirmação de Dados</h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p class="text-secondary mb-4">Verifique se as informações abaixo estão corretas antes de finalizar o cadastro.</p>
+                
+                <div class="row" id="resumoConteudo">
+                    <!-- Preenchido via Javascript -->
+                </div>
+            </div>
+            <div class="modal-footer bg-light">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Editar Informações</button>
+                <button type="button" id="btnConfirmarFinal" class="btn btn-primary px-4">
+                    <i class="fas fa-check mr-1"></i> Confirmar e Salvar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const select = document.getElementById('id_usuarios');
+        if (select) {
+            const searchInput = document.createElement('input');
+            searchInput.type = 'text';
+            searchInput.placeholder = 'Digite para filtrar... (clique para selecionar vários)';
+            searchInput.className = 'form-control mb-2';
+            select.parentNode.insertBefore(searchInput, select);
+
+            // 1. Lógica de Busca (Mantém selecionados sempre visíveis)
+            searchInput.addEventListener('input', function () {
+                const filter = this.value.toLowerCase();
+                const options = select.options;
+
+                for (let i = 0; i < options.length; i++) {
+                    const option = options[i];
+                    const text = option.text.toLowerCase();
+                    const isSelected = option.selected;
+
+                    // Mostra se bater com o filtro OU se já estiver selecionado
+                    if (text.includes(filter) || isSelected) {
+                        option.style.display = '';
+                        option.disabled = false;
+                    } else {
+                        option.style.display = 'none';
+                        option.disabled = true;
+                    }
+                }
+            });
+
+            // 2. Seleção Inteligente: clique simples alterna (Toggle) em vez de desmarcar outros
+            select.addEventListener('mousedown', function (e) {
+                e.preventDefault(); // Impede o comportamento padrão de desmarcar os outros
+                const option = e.target;
+                if (option.tagName === 'OPTION') {
+                    option.selected = !option.selected; // Alterna a seleção
+                    // Garante que o Django perceba a mudança
+                    select.dispatchEvent(new Event('change'));
+                    searchInput.dispatchEvent(new Event('input')); // Atualiza filtro para manter visível
+                }
+            });
+        }
+
+        // 3. Lógica do Modal de Confirmação
+        const btnAbre = document.getElementById('btnAbreConfirmacao');
+        const btnFinal = document.getElementById('btnConfirmarFinal');
+        const modal = $('#confirmacaoModal');
+        const form = document.querySelector('form');
+
+        if (btnAbre) {
+            btnAbre.addEventListener('click', function () {
+                const resumo = document.getElementById('resumoConteudo');
+                resumo.innerHTML = ''; // Limpar anterior
+
+                // Função para obter o texto legível dos selects
+                const getLabel = (id) => {
+                    const el = document.getElementById(id);
+                    if (!el || el.selectedIndex < 0) return '<span class="text-muted">Não selecionado</span>';
+                    const text = el.options[el.selectedIndex].text;
+                    return text.includes('---------') ? '<span class="text-muted">Não selecionado</span>' : text;
+                };
+
+                // Função para formatar datas amigavelmente
+                const formatData = (id) => {
+                    const val = document.getElementById(id).value;
+                    if (!val) return '<span class="text-muted">Não informado</span>';
+                    // Tenta formatar: 2026-04-10T12:00 -> 10/04/2026 12:00
+                    const parts = val.split('T');
+                    if (parts.length === 2) {
+                        const dateParts = parts[0].split('-');
+                        return `${dateParts[2]}/${dateParts[1]}/${dateParts[0]} ${parts[1]}`;
+                    }
+                    return val.replace('T', ' ');
+                };
+
+                // Coletar usuários selecionados
+                const equipeArray = Array.from(select.selectedOptions);
+                const equipeHtml = equipeArray.length > 0
+                    ? equipeArray.map(opt => `<li class="mb-1">${opt.text}</li>`).join('')
+                    : '<li class="text-danger italic">Nenhum usuário selecionado</li>';
+
+                const dados = [
+                    { label: 'Viatura', value: getLabel('id_viatura_id') },
+                    { label: 'Aeronave', value: getLabel('id_aeronave_id') },
+                    { label: 'Turno', value: document.getElementById('id_turno').value || 'Não informado' },
+                    { label: 'Início do Serviço', value: formatData('id_horario_inicial') },
+                    { label: 'Término do Serviço', value: formatData('id_horario_final') },
+                    { label: 'Observações', value: document.getElementById('id_observacao').value || '<span class="text-muted">Nenhuma</span>' },
+                ];
+
+                let html = dados.map(item => `
+                    <div class="col-md-6 mb-3">
+                        <small class="text-primary font-weight-bold text-uppercase d-block mb-1" style="font-size: 0.7rem;">${item.label}</small>
+                        <div class="px-3 py-2 bg-light border-left-primary rounded shadow-sm text-dark font-weight-bold" style="min-height: 38px; border-left: 4px solid #4e73df !important;">
+                            ${item.value}
+                        </div>
+                    </div>
+                `).join('');
+
+                html += `
+                    <div class="col-12 mt-3">
+                        <small class="text-primary font-weight-bold text-uppercase d-block mb-1" style="font-size: 0.7rem;">Guarnição / Equipe de Serviço</small>
+                        <div class="p-3 bg-light border-left-info rounded shadow-sm" style="border-left: 4px solid #36b9cc !important;">
+                            <ul class="mb-0 pl-3 text-dark font-weight-bold">${equipeHtml}</ul>
+                        </div>
+                    </div>
+                `;
+
+                resumo.innerHTML = html;
+                modal.modal('show');
+            });
+        }
+
+        if (btnFinal) {
+            btnFinal.addEventListener('click', function () {
+                // Adicionar um indicador de carregamento
+                this.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Salvando...';
+                this.disabled = true;
+                form.submit();
+            });
+        }
+    });
+</script>
+{% endblock %}

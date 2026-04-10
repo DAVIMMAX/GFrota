@@ -75,3 +75,8 @@ class Usuario(AbstractUser):
         roles_funcao = self.funcao.roles.all() if self.funcao else Role.objects.none()
         roles_extras = self.roles.all()
         return roles_funcao | roles_extras
+
+    @property
+    def is_cadastrador(self):
+        # Verifica se na lista de roles existe o cadastrador
+        return self.get_all_roles.filter(role__iexact='cadastrador').exists()

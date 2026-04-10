@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block content %}
+
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Lista de Viaturas</h1>
+</div>
+
+<div class="row">
+    <div class="col-xl-12 col-lg-12">
+        <!-- Cartão Principal -->
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">Viaturas Cadastradas</h6>
+            </div>
+
+            <div class="card-body">
+                <div class="table-responsive align-items-center text-center">
+                    <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                        <thead>
+                            <tr>
+                                <th>Foto</th>
+                                <th>Placa</th>
+                                <th>Modelo</th>
+                                <th>Prefixo</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for viatura in viaturas %}
+                            <tr>
+                                <td>
+                                    {% if viatura.foto %}
+                                    <div class="d-flex justify-content-center">
+                                        <a href="{% url 'frota:editar_viatura' viatura.pk %}">
+                                            <img src="{{ viatura.foto.url }}" alt="Foto {{ viatura.prefixo }}"
+                                                class="img" style="max-width: 50px; height: auto; border-radius: 50%;">
+                                        </a>
+                                    </div>
+                                    {% else %}
+                                    <span class="text-muted">Sem Foto</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ viatura.placa }}</td>
+                                <td>{{ viatura.modelo }}</td>
+                                <td>{{ viatura.prefixo }}</td>
+                                <td> {{ viatura.status_viatura_id.nome }} </td>
+                                <td>
+                                    <a href="{% url 'frota:editar_viatura' viatura.pk %}"
+                                        class="btn btn-primary btn-sm">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="{% url 'frota:deletar_viatura' viatura.pk %}"
+                                        class="btn btn-danger btn-sm">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

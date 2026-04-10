@@ -1,15 +1,10 @@
 {% extends 'base.html' %}
+
 {% load static %}
 {% load crispy_forms_tags %}
 
-{% block title %}GFrota - Cadastro de Usuário{% endblock %}
-
-
-
-{% block content %}
-<!-- Cabeçalho da Página -->
 <div class="d-sm-flex align-items-center justify-content-between mb-4">
-    <h1 class="h3 mb-0 text-gray-800">Cadastro de Usuário</h1>
+    <h1 class="h3 mb-0 text-gray-800">Perfil</h1>
 </div>
 
 <div class="row">
@@ -17,7 +12,7 @@
         <!-- Cartão Principal -->
         <div class="card shadow mb-4">
             <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                <h6 class="m-0 font-weight-bold text-primary">Preencha os Dados Funcionais e de Acesso</h6>
+                <h6 class="m-0 font-weight-bold text-primary">Perfil</h6>
             </div>
 
             <div class="card-body">
@@ -29,11 +24,11 @@
                     <hr class="mt-4">
 
                     <div class="d-flex justify-content-end mt-3">
-                        <a href="{% url 'usuarios:home' %}" class="btn btn-secondary mr-2">
+                        <a href="{% url 'frota:dashboard' %}" class="btn btn-secondary mr-2">
                             <i class="fas fa-times fa-sm text-white-50 mr-1"></i> Cancelar
                         </a>
                         <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-save fa-sm text-white-50 mr-1"></i> Cadastrar Usuário
+                            <i class="fas fa-save fa-sm text-white-50 mr-1"></i> Salvar Alterações
                         </button>
                     </div>
                 </form>
@@ -41,4 +36,3 @@
         </div>
     </div>
 </div>
-{% endblock %}

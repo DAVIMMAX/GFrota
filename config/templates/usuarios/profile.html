@@ -1,0 +1,175 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Meu Perfil - GFrota{% endblock %}
+
+{% block extra_css %}
+<style>
+    .profile-header {
+        position: relative;
+        background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+        border-radius: .35rem .35rem 0 0;
+        padding: 3rem 1.5rem;
+        color: white;
+        text-align: center;
+    }
+
+    .profile-avatar-container {
+        position: relative;
+        margin-top: -4rem;
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .profile-avatar {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        border: 5px solid white;
+        box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+        object-fit: cover;
+        background-color: #eaecf4;
+    }
+
+    .info-card i {
+        color: #4e73df;
+        width: 20px;
+        text-align: center;
+        margin-right: 10px;
+    }
+
+    .role-badge {
+        font-size: 0.85rem;
+        padding: 0.35em 0.65em;
+        margin: 0.2rem;
+    }
+
+    .btn-edit-profile {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Meu Perfil</h1>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow mb-4 border-bottom-primary">
+            <div class="profile-header">
+                {% if request.user.is_cadastrador %}
+                <a href="{% url 'usuarios:edicao' usuario.pk %}" class="btn btn-light btn-sm btn-edit-profile shadow-sm">
+                    <i class="fas fa-edit fa-sm text-primary"></i> Editar
+                </a>
+                {% endif %}
+            </div>
+
+            <div class="profile-avatar-container">
+                {% if usuario.foto %}
+                <img src="{{ usuario.foto.url }}" alt="Foto do Usuário" class="profile-avatar">
+                {% else %}
+                <img src="{% static 'img/undraw_profile.svg' %}" alt="Avatar Padrão" class="profile-avatar">
+                {% endif %}
+                <h4 class="mt-3 mb-1 font-weight-bold text-gray-900">{{ usuario.nome_guerra|default:usuario.username }}
+                </h4>
+                <p class="text-muted mb-0">{{ usuario.cargo|default:"Cargo não definido" }}</p>
+                {% if usuario.orgao_id %}
+                <p class="text-xs text-primary font-weight-bold text-uppercase mb-1"><i
+                        class="fas fa-building mr-1"></i> {{ usuario.orgao_id.orgao }}</p>
+                {% endif %}
+            </div>
+
+            <div class="card-body">
+                <ul class="nav nav-tabs mb-4" id="profileTabs" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active font-weight-bold" id="info-tab" data-toggle="tab" href="#info"
+                            role="tab" aria-controls="info" aria-selected="true">Informações Pessoais</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link font-weight-bold" id="system-tab" data-toggle="tab" href="#system" role="tab"
+                            aria-controls="system" aria-selected="false">Acessos e Sistema</a>
+                    </li>
+                </ul>
+
+                <div class="tab-content" id="profileTabsContent">
+                    <!-- Tab: Informações Pessoais -->
+                    <div class="tab-pane fade show active" id="info" role="tabpanel" aria-labelledby="info-tab">
+                        <div class="row">
+                            <div class="col-md-6 mb-3 info-card">
+                                <h6 class="text-xs font-weight-bold text-primary text-uppercase mb-1">Nome Completo</h6>
+                                <p class="mb-0 text-gray-800"><i class="fas fa-id-card"></i> {{ usuario.nome_completo|default:"Não informado" }}</p>
+                            </div>
+
+                            <div class="col-md-6 mb-3 info-card">
+                                <h6 class="text-xs font-weight-bold text-primary text-uppercase mb-1">E-mail</h6>
+                                <p class="mb-0 text-gray-800"><i class="fas fa-envelope"></i> {{ usuario.email|default:"Não informado" }}</p>
+                            </div>
+
+                            <div class="col-md-6 mb-3 info-card">
+                                <h6 class="text-xs font-weight-bold text-primary text-uppercase mb-1">CPF</h6>
+                                <p class="mb-0 text-gray-800"><i class="fas fa-fingerprint"></i> {{ usuario.cpf|default:"Não informado" }}</p>
+                            </div>
+
+                            <div class="col-md-6 mb-3 info-card">
+                                <h6 class="text-xs font-weight-bold text-primary text-uppercase mb-1">Matrícula</h6>
+                                <p class="mb-0 text-gray-800"><i class="fas fa-hashtag"></i> {{ usuario.matricula|default:"Não informado" }}</p>
+                            </div>
+
+                            <div class="col-md-6 mb-3 info-card">
+                                <h6 class="text-xs font-weight-bold text-primary text-uppercase mb-1">Nº de Ordem</h6>
+                                <p class="mb-0 text-gray-800"><i class="fas fa-sort-numeric-down"></i> {{ usuario.numero_ordem|default:"Não informado" }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tab: Acessos e Sistema -->
+                    <div class="tab-pane fade" id="system" role="tabpanel" aria-labelledby="system-tab">
+                        <div class="row">
+                            <div class="col-md-6 mb-3 info-card">
+                                <h6 class="text-xs font-weight-bold text-primary text-uppercase mb-1">Usuário do Sistema
+                                </h6>
+                                <p class="mb-0 text-gray-800"><i class="fas fa-user-circle"></i> {{ usuario.username }}
+                                </p>
+                            </div>
+
+                            <div class="col-md-6 mb-3 info-card">
+                                <h6 class="text-xs font-weight-bold text-primary text-uppercase mb-1">Último Login</h6>
+                                <p class="mb-0 text-gray-800"><i class="fas fa-clock"></i> {{ usuario.last_login|date:"d/m/Y H:i"|default:"Nunca logou" }}</p>
+                            </div>
+
+                            <div class="col-md-6 mb-3 info-card">
+                                <h6 class="text-xs font-weight-bold text-primary text-uppercase mb-1">Função Base</h6>
+                                <p class="mb-0 text-gray-800"><i class="fas fa-briefcase"></i> {{ usuario.funcao|default:"Sem função atribuída" }}</p>
+                            </div>
+
+                            <div class="col-12 mt-3">
+                                <h6 class="text-xs font-weight-bold text-primary text-uppercase mb-2">Permissões (Roles)
+                                    Ativas:</h6>
+                                {% if usuario.get_all_roles %}
+                                {% for r in usuario.get_all_roles %}
+                                <span class="badge badge-primary role-badge shadow-sm"><i
+                                        class="fas fa-shield-alt mr-1"></i> {{ r.role }}</span>
+                                {% endfor %}
+                                {% else %}
+                                <span class="text-muted font-italic text-sm">Nenhuma permissão específica
+                                    atribuída.</span>
+                                {% endif %}
+
+                                {% if usuario.is_superuser %}
+                                <span class="badge badge-danger role-badge shadow-sm"><i
+                                        class="fas fa-user-shield mr-1"></i> Super Admin</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
