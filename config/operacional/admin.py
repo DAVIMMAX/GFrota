@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Apresentacao, Voo, Ocorrencia
+from .models import Apresentacao, Voo, Ocorrencia, AtribuicaoDoServico, ApresentacaoAtribuicao
 
 @admin.register(Apresentacao)
 class ApresentacaoAdmin(admin.ModelAdmin):
@@ -16,5 +16,17 @@ class VooAdmin(admin.ModelAdmin):
 
 @admin.register(Ocorrencia)
 class OcorrenciaAdmin(admin.ModelAdmin):
-    list_display = ('id', 'tipo_ocorrencia', 'data_ocorrencia', 'hora_ocorrencia', 'apresentacao_id')
+    list_display = ('id', 'tipo_ocorrencia', 'data_ocorrencia', 'hora_ocorrencia')
     list_filter = ('data_ocorrencia', 'hora_ocorrencia')
+    filter_horizontal = ('guarnicoes_id',)
+
+@admin.register(ApresentacaoAtribuicao)
+class ApresentacaoAtribuicaoAdmin(admin.ModelAdmin):
+    list_display = ('id', 'apresentacao_id', 'atribuicao_id', 'usuario_id')
+    list_filter = ('apresentacao_id', 'atribuicao_id', 'usuario_id')
+
+
+@admin.register(AtribuicaoDoServico)
+class AtribuicaoDoServicoAdmin(admin.ModelAdmin):
+    list_display = ('id', 'atribuicao')
+    list_filter = ('atribuicao',)

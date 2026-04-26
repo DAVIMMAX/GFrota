@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import StatusViatura, TipoRadio, Viatura, Radio, Aeronave
+from .models import StatusViatura, TipoRadio, Viatura, Radio, Aeronave, TipoAeronave
 
 @admin.register(StatusViatura)
 class StatusViaturaAdmin(admin.ModelAdmin):
@@ -26,8 +26,13 @@ class RadioAdmin(admin.ModelAdmin):
     search_fields = ('prefixo',)
     list_filter = ('tipo_radio_id',)
 
+@admin.register(TipoAeronave)
+class TipoAeronaveAdmin(admin.ModelAdmin):
+    list_display = ('id', 'tipo')
+    search_fields = ('tipo',)
 
 @admin.register(Aeronave)
 class AeronaveAdmin(admin.ModelAdmin):
-    list_display = ('id', 'prefixo', 'recurso', 'radio_id')
-    search_fields = ('prefixo', 'recurso')
+    list_display = ('id', 'nome', 'prefixo',  'radio_id', 'tipo_aeronave_id')
+    search_fields = ('nome', 'prefixo')
+    list_filter = ('tipo_aeronave_id',)

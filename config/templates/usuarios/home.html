@@ -4,22 +4,86 @@
 
 {% block content %}
 <div class="d-sm-flex align-items-center justify-content-between mb-4">
-    <h1 class="h3 mb-0 text-gray-800">Painel de Teste</h1>
+    <h1 class="h3 mb-0 text-gray-800">DASHBOARD</h1>
 </div>
 
 <div class="row">
     <div class="col-lg-12">
         <div class="card shadow mb-4">
             <div class="card-header py-3">
-                <h6 class="m-0 font-weight-bold text-primary">Bem vindo {{ user.username }}!</h6>
+                <h3 class="m-0 font-weight-bold text-primary">Bem vindo {{ user.username.capitalize }}!</h6>
             </div>
             <div class="card-body">
-                <p><strong> Utilize o painel ao lado para navegar pelas
+                <p style="font-style: italic;"><strong> Utilize o painel ao lado para navegar pelas
                         funcionalidades do sistema </strong></p>
+
+                <div class="row">
+                    <!-- Frota Card -->
+                    <div class="col-lg-6 mb-4">
+                        <a href="{% url 'frota:listar_viaturas' %}" class="text-decoration-none">
+                            <div class="card bg-primary text-white shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="col-auto mb-3">
+                                                <div class="text-xs font-weight-bold text-white text-uppercase mb-1">
+
+                                                    <div
+                                                        class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                                        Viaturas em emprego
+                                                    </div>
+                                                    <div class="h3 mb-0 font-weight-bold text-warning">
+                                                        {{ total_emprego }}
+                                                    </div>
+                                                    <div
+                                                        class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                                        Viaturas disponíveis
+                                                    </div>
+                                                    <div class="h3 mb-0 font-weight-bold text-success">
+                                                        {{ total_disponivel }}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <div>
+                                                <i class="fas fa-car fa-3x text-white-50"></i>
+                                            </div>
+
+                                            <p class="h5 mb-0 font-weight-bold text-white">Frota Total</p>
+                                            <p class="h5 mb-0 font-weight-bold text-white">{{ total_viaturas }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                    </div>
+                    </a>
+
+                    <!-- Apresentações Ativas Card -->
+                    <div class="col-lg-6 mb-4">
+                        <a href="{% url 'operacional:listar_apresentacoes_ativas' %}" class="text-decoration-none">
+                            <div class="card bg-success text-white shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-white text-uppercase mb-1">
+                                                Guarnições Ativas</div>
+                                            <div class="h3 mb-0 font-weight-bold text-white">{{ total_ativas }}</div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <div class="rotate-n-15">
+                                                <i class="fas fa-clipboard-list fa-3x text-white-50"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
 
 
             </div>
         </div>
     </div>
-</div>
-{% endblock %}
+    {% endblock %}

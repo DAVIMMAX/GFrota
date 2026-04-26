@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block title %}GFrota - Dados da Apresentação{% endblock %}
+
+{% block content %}
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Dados da Apresentação</h1>
+    <a href="{% url 'operacional:listar_apresentacoes' %}" class="btn btn-sm btn-secondary shadow-sm">
+        <i class="fas fa-arrow-left fa-sm text-white-50 mr-1"></i> Voltar
+    </a>
+
+</div>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex align-items-center justify-content-between">
+        <h6 class="m-0 font-weight-bold text-primary">Dados da Apresentação</h6>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <p><strong>Tipo:</strong> {{ apresentacao.tipo_apresentacao }}</p>
+                <p><strong>Turno:</strong> {{ apresentacao.turno }}</p>
+                <p><strong>Horário Inicial:</strong> {{ apresentacao.horario_inicial }}</p>
+                <p><strong>Horário Final:</strong> {{ apresentacao.horario_final }}</p>
+                <p><strong>Observação:</strong> {{ apresentacao.observacao }}</p>
+            </div>
+            <div class="col-md-6">
+                <p><strong>Componentes:</strong></p>
+                <ul>
+                    {% for usuario in apresentacao.usuarios.all %}
+                    <li>{{ usuario.nome_completo }} - {{ usuario.funcao_id.funcao }}
+                        <br>
+                        {% for assignment in apresentacao.apresentacaoradio_set.all %}
+                        {% if assignment.usuario_id == usuario %}
+                        Radio: {{ assignment.radio_id.prefixo }}
+                        {% endif %}
+                        {% endfor %}
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

@@ -4,6 +4,77 @@
 
 {% block title %}GFrota - Cadastro de Serviço Operacional{% endblock %}
 
+{% block extra_css %}
+<!-- Select2 CSS -->
+<link href="{% static 'vendor/select2/select2.min.css' %}" rel="stylesheet" />
+<style>
+    /* Customização Select2 para o tema Gfrota (Dark Mode / Glassmorphism) */
+    .select2-container--default .select2-selection--multiple {
+        background-color: rgba(15, 23, 42, 0.6) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        border-radius: 12px !important;
+        padding: 8px !important;
+        min-height: 60px !important;
+    }
+
+    .select2-container--default.select2-container--focus .select2-selection--multiple {
+        border-color: #4e73df !important;
+        box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25) !important;
+    }
+
+    .select2-container--default .select2-selection--multiple .select2-selection__choice {
+        background-color: #4e73df !important;
+        border: none !important;
+        color: white !important;
+        border-radius: 6px !important;
+        padding: 4px 10px !important;
+        /* Aumentado padding interno */
+        margin-top: 5px !important;
+        display: flex !important;
+        align-items: center !important;
+    }
+
+    .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+        color: rgba(255, 255, 255, 0.9) !important;
+        margin-right: 10px !important;
+        /* Espaço maior entre o 'x' e o nome */
+        border: none !important;
+        font-weight: bold !important;
+    }
+
+    .select2-container--default .select2-selection--multiple .select2-selection__choice__remove:hover {
+        background-color: transparent !important;
+        color: white !important;
+    }
+
+    .select2-dropdown {
+        background-color: #1e293b !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        border-radius: 12px !important;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5) !important;
+        color: #f8fafc !important;
+    }
+
+    .select2-container--default .select2-search--inline .select2-search__field {
+        color: #f8fafc !important;
+        font-family: inherit !important;
+        margin-top: 7px !important;
+    }
+
+    .select2-container--default .select2-results__option--highlighted[aria-selected] {
+        background-color: #4e73df !important;
+    }
+
+    .select2-container--default .select2-results__option[aria-selected=true] {
+        background-color: rgba(78, 115, 223, 0.2) !important;
+    }
+
+    .select2-results__option {
+        padding: 8px 12px !important;
+        font-size: 0.9rem !important;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
 <div class="row">
@@ -16,7 +87,7 @@
             </div>
 
             <div class="card-body">
-                <form method="POST" enctype="multipart/form-data">
+                <form method="POST" enctype="multipart/form-data" id="formApresentacao">
                     {% csrf_token %}
 
                     {% crispy form %}
@@ -38,18 +109,21 @@
 </div>
 
 <!-- Modal de Confirmação -->
-<div class="modal fade" id="confirmacaoModal" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
+<div class="modal fade" id="confirmacaoModal" tabindex="-1" role="dialog" aria-labelledby="modalLabel"
+    aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content border-0 shadow-lg">
             <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title" id="modalLabel"><i class="fas fa-check-circle mr-2"></i>Confirmação de Dados</h5>
+                <h5 class="modal-title" id="modalLabel"><i class="fas fa-check-circle mr-2"></i>Confirmação de Dados
+                </h5>
                 <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
-                <p class="text-secondary mb-4">Verifique se as informações abaixo estão corretas antes de finalizar o cadastro.</p>
-                
+                <p class="text-secondary mb-4">Verifique se as informações abaixo estão corretas antes de finalizar o
+                    cadastro.</p>
+
                 <div class="row" id="resumoConteudo">
                     <!-- Preenchido via Javascript -->
                 </div>
@@ -66,62 +140,64 @@
 {% endblock %}
 
 {% block extra_js %}
+<!-- Select2 JS -->
+<script src="{% static 'vendor/select2/select2.min.js' %}"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const select = document.getElementById('id_usuarios');
-        if (select) {
-            const searchInput = document.createElement('input');
-            searchInput.type = 'text';
-            searchInput.placeholder = 'Digite para filtrar... (clique para selecionar vários)';
-            searchInput.className = 'form-control mb-2';
-            select.parentNode.insertBefore(searchInput, select);
-
-            // 1. Lógica de Busca (Mantém selecionados sempre visíveis)
-            searchInput.addEventListener('input', function () {
-                const filter = this.value.toLowerCase();
-                const options = select.options;
-
-                for (let i = 0; i < options.length; i++) {
-                    const option = options[i];
-                    const text = option.text.toLowerCase();
-                    const isSelected = option.selected;
-
-                    // Mostra se bater com o filtro OU se já estiver selecionado
-                    if (text.includes(filter) || isSelected) {
-                        option.style.display = '';
-                        option.disabled = false;
-                    } else {
-                        option.style.display = 'none';
-                        option.disabled = true;
-                    }
+    $(document).ready(function () {
+        // 1. Inicialização do Select2 no campo de usuários
+        $('#id_usuarios').select2({
+            placeholder: "Busque e adicione integrantes da equipe...",
+            allowClear: true,
+            width: '100%',
+            language: {
+                noResults: function () {
+                    return "Nenhum usuário encontrado";
                 }
-            });
+            }
+        });
 
-            // 2. Seleção Inteligente: clique simples alterna (Toggle) em vez de desmarcar outros
-            select.addEventListener('mousedown', function (e) {
-                e.preventDefault(); // Impede o comportamento padrão de desmarcar os outros
-                const option = e.target;
-                if (option.tagName === 'OPTION') {
-                    option.selected = !option.selected; // Alterna a seleção
-                    // Garante que o Django perceba a mudança
-                    select.dispatchEvent(new Event('change'));
-                    searchInput.dispatchEvent(new Event('input')); // Atualiza filtro para manter visível
-                }
-            });
-        }
-
-        // 3. Lógica do Modal de Confirmação
+        // 2. Lógica do Modal de Confirmação
         const btnAbre = document.getElementById('btnAbreConfirmacao');
         const btnFinal = document.getElementById('btnConfirmarFinal');
         const modal = $('#confirmacaoModal');
-        const form = document.querySelector('form');
+        const form = document.getElementById('formApresentacao');
+
+        if (btnFinal) {
+            btnFinal.addEventListener('click', function () {
+                this.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Salvando...';
+                this.disabled = true;
+                form.submit();
+            });
+        }
+
+        // 3. Alternância entre Viatura e Aeronave
+        const tipoSelect = document.getElementById('id_tipo_apresentacao');
+        const divViatura = document.getElementById('div_id_viatura_id');
+        const divAeronave = document.getElementById('div_id_aeronave_id');
+        const divSolo = document.getElementById('div_id_solo_id');
+
+        function toggleTipo() {
+            if (!tipoSelect) return;
+            const val = tipoSelect.value;
+
+            // Mostrar Viatura se selecionado
+            if (divViatura) divViatura.style.display = (val === 'viatura' ? '' : 'none');
+            // Mostrar Aeronave se selecionado
+            if (divAeronave) divAeronave.style.display = (val === 'aeronave' ? '' : 'none');
+            // Mostrar Solo se selecionado
+            if (divSolo) divSolo.style.display = (val === 'solo' ? '' : 'none');
+        }
+
+        if (tipoSelect) {
+            $(tipoSelect).on('change', toggleTipo);
+            toggleTipo();
+        }
 
         if (btnAbre) {
             btnAbre.addEventListener('click', function () {
                 const resumo = document.getElementById('resumoConteudo');
-                resumo.innerHTML = ''; // Limpar anterior
+                resumo.innerHTML = '';
 
-                // Função para obter o texto legível dos selects
                 const getLabel = (id) => {
                     const el = document.getElementById(id);
                     if (!el || el.selectedIndex < 0) return '<span class="text-muted">Não selecionado</span>';
@@ -129,11 +205,9 @@
                     return text.includes('---------') ? '<span class="text-muted">Não selecionado</span>' : text;
                 };
 
-                // Função para formatar datas amigavelmente
                 const formatData = (id) => {
                     const val = document.getElementById(id).value;
                     if (!val) return '<span class="text-muted">Não informado</span>';
-                    // Tenta formatar: 2026-04-10T12:00 -> 10/04/2026 12:00
                     const parts = val.split('T');
                     if (parts.length === 2) {
                         const dateParts = parts[0].split('-');
@@ -142,20 +216,31 @@
                     return val.replace('T', ' ');
                 };
 
-                // Coletar usuários selecionados
-                const equipeArray = Array.from(select.selectedOptions);
+                // Coletar usuários selecionados via Select2
+                const equipeArray = $('#id_usuarios').select2('data');
                 const equipeHtml = equipeArray.length > 0
                     ? equipeArray.map(opt => `<li class="mb-1">${opt.text}</li>`).join('')
                     : '<li class="text-danger italic">Nenhum usuário selecionado</li>';
 
+                const tipoVal = tipoSelect.value;
                 const dados = [
-                    { label: 'Viatura', value: getLabel('id_viatura_id') },
-                    { label: 'Aeronave', value: getLabel('id_aeronave_id') },
+                    { label: 'Tipo de Serviço', value: tipoSelect.options[tipoSelect.selectedIndex].text },
+                ];
+
+                if (tipoVal === 'viatura') {
+                    dados.push({ label: 'Viatura', value: getLabel('id_viatura_id') });
+                } else if (tipoVal === 'aeronave') {
+                    dados.push({ label: 'Aeronave', value: getLabel('id_aeronave_id') });
+                } else if (tipoVal === 'solo') {
+                    dados.push({ label: 'Solo/Recurso', value: getLabel('id_solo_id') });
+                }
+
+                dados.push(
                     { label: 'Turno', value: document.getElementById('id_turno').value || 'Não informado' },
                     { label: 'Início do Serviço', value: formatData('id_horario_inicial') },
                     { label: 'Término do Serviço', value: formatData('id_horario_final') },
                     { label: 'Observações', value: document.getElementById('id_observacao').value || '<span class="text-muted">Nenhuma</span>' },
-                ];
+                );
 
                 let html = dados.map(item => `
                     <div class="col-md-6 mb-3">
@@ -177,15 +262,6 @@
 
                 resumo.innerHTML = html;
                 modal.modal('show');
-            });
-        }
-
-        if (btnFinal) {
-            btnFinal.addEventListener('click', function () {
-                // Adicionar um indicador de carregamento
-                this.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Salvando...';
-                this.disabled = true;
-                form.submit();
             });
         }
     });

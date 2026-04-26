@@ -1,0 +1,251 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}GFrota - Atribuições da Guarnição{% endblock %}
+
+{% block extra_css %}
+<!-- Select2 CSS para busca rápida -->
+<link href="{% static 'vendor/select2/select2.min.css' %}" rel="stylesheet" />
+<style>
+    .step-indicator {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 2rem;
+    }
+    .step {
+        flex: 1;
+        text-align: center;
+        padding: 0.75rem 0.5rem;
+        border-bottom: 4px solid #e3e6f0;
+        color: #858796;
+        font-weight: 700;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        transition: all 0.3s ease;
+    }
+    .step.active {
+        border-bottom-color: #4e73df;
+        color: #4e73df;
+    }
+    .step.completed {
+        border-bottom-color: #1cc88a;
+        color: #1cc88a;
+    }
+    .user-avatar {
+        width: 45px;
+        height: 45px;
+        background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 12px;
+        font-weight: bold;
+        box-shadow: 0 4px 6px rgba(78, 115, 223, 0.2);
+    }
+    .card-attribution {
+        border-radius: 15px;
+        overflow: hidden;
+    }
+    .table-hover tbody tr:hover {
+        background-color: rgba(78, 115, 223, 0.03);
+    }
+    .select2-container--default .select2-selection--single {
+        height: calc(1.5em + 0.75rem + 2px);
+        padding: 0.375rem 0.75rem;
+        font-size: 1rem;
+        font-weight: 400;
+        line-height: 1.5;
+        color: #6e707e;
+        background-color: #fff;
+        background-clip: padding-box;
+        border: 1px solid #d1d3e2;
+        border-radius: 0.35rem;
+        transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    }
+    body.dark-mode .step {
+        border-bottom-color: #4a5568;
+        color: #a0aec0;
+    }
+    body.dark-mode .step.active {
+        border-bottom-color: #4e73df;
+        color: #4e73df;
+    }
+    body.dark-mode .step.completed {
+        border-bottom-color: #1cc88a;
+        color: #1cc88a;
+    }
+    body.dark-mode .bg-light {
+        background-color: #2d3748 !important;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-10 mx-auto">
+        <!-- Progress Indicator -->
+        <div class="step-indicator d-none d-md-flex">
+            <div class="step completed">1. Cadastro da Apresentação</div>
+            <div class="step active">2. Atribuições da Equipe</div>
+            <div class="step">3. Entrega de Rádios</div>
+        </div>
+
+        <div class="card shadow-lg mb-4 card-attribution border-0">
+            <div class="card-header py-3 d-flex flex-column flex-md-row align-items-center justify-content-between bg-white border-bottom">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-id-badge mr-2"></i> Definir Atribuições: {{ apresentacao.turno }}
+                </h6>
+                <div class="mt-2 mt-md-0">
+                    <span class="badge badge-primary px-3 py-2 shadow-sm rounded-pill">
+                        {{ apresentacao.get_tipo_apresentacao_display|upper }}
+                    </span>
+                    {% if apresentacao.viatura_id %}
+                        <span class="badge badge-dark px-3 py-2 ml-1 shadow-sm rounded-pill">
+                            <i class="fas fa-car mr-1 text-info"></i> {{ apresentacao.viatura_id.prefixo }}
+                        </span>
+                    {% elif apresentacao.aeronave_id %}
+                        <span class="badge badge-dark px-3 py-2 ml-1 shadow-sm rounded-pill">
+                            <i class="fas fa-helicopter mr-1 text-warning"></i> {{ apresentacao.aeronave_id.prefixo }}
+                        </span>
+                    {% elif apresentacao.solo_id %}
+                         <span class="badge badge-dark px-3 py-2 ml-1 shadow-sm rounded-pill">
+                            <i class="fas fa-walking mr-1 text-success"></i> {{ apresentacao.solo_id.nome }}
+                        </span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div class="p-4 bg-light border-bottom">
+                    <h5 class="text-dark font-weight-bold mb-1">Passo 2: Funções dos Integrantes</h5>
+                    <p class="text-muted small mb-0">
+                        Cada integrante deve ter uma atribuição específica vinculada a este serviço operacional para garantir o correto preenchimento do Livro de Socorro/Ocorrências.
+                    </p>
+                </div>
+
+                <form method="post" class="p-0">
+                    {% csrf_token %}
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th class="border-0 px-4">Integrante</th>
+                                    <th class="border-0 px-4" style="width: 45%;">Função Designada</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white">
+                                {% for usuario in usuarios %}
+                                <tr>
+                                    <td class="align-middle px-4 py-3">
+                                        <div class="d-flex align-items-center">
+                                            <div class="user-avatar mr-3">
+                                                {% if usuario.nome_guerra %}
+                                                    {{ usuario.nome_guerra|slice:":2"|upper }}
+                                                {% else %}
+                                                    {{ usuario.username|slice:":2"|upper }}
+                                                {% endif %}
+                                            </div>
+                                            <div>
+                                                <div class="font-weight-bold text-gray-800">
+                                                    {{ usuario.cargo|default:"" }} {{ usuario.nome_completo|default:usuario.username }}
+                                                </div>
+                                                <div class="small text-muted">
+                                                    <span class="badge badge-light border text-gray-600">
+                                                        Mat: {{ usuario.matricula|default:"-" }}
+                                                    </span>
+                                                    {% if usuario.nome_guerra %}
+                                                        <span class="ml-2 font-italic">"{{ usuario.nome_guerra }}"</span>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="align-middle px-4 py-3">
+                                        <select name="atribuicao_user_{{ usuario.id }}" class="form-control select2-atribuicao" required>
+                                            <option value="">-- Selecione a Função --</option>
+                                            {% for atribuicao in atribuicoes %}
+                                            <option value="{{ atribuicao.id }}" {% if usuario.current_atribuicao_id == atribuicao.id %}selected{% endif %}>
+                                                {{ atribuicao.atribuicao }}
+                                            </option>
+                                            {% endfor %}
+                                        </select>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="2" class="text-center py-5">
+                                        <div class="text-gray-400 mb-3">
+                                            <i class="fas fa-users-slash fa-3x"></i>
+                                        </div>
+                                        <h5 class="text-danger">Nenhum integrante encontrado!</h5>
+                                        <p class="text-muted small">Certifique-se de que a guarnição foi montada corretamente no passo anterior.</p>
+                                        <a href="{% url 'operacional:cadastro_apresentacao' %}" class="btn btn-sm btn-outline-primary">
+                                            Voltar e Corrigir
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="p-4 bg-gray-100 d-flex flex-column flex-md-row justify-content-between align-items-center">
+                        <a href="{% url 'operacional:listar_apresentacoes_ativas' %}" class="btn btn-link text-gray-600 order-2 order-md-1 mt-3 mt-md-0">
+                            <i class="fas fa-arrow-left mr-1"></i> Voltar para Lista
+                        </a>
+                        <div class="order-1 order-md-2 d-flex flex-column flex-sm-row">
+                            <button type="submit" class="btn btn-primary btn-icon-split shadow">
+                                <span class="text font-weight-bold">Gravar e Continuar: Atribuir Rádios</span>
+                                <span class="icon text-white-50">
+                                    <i class="fas fa-chevron-right"></i>
+                                </span>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Select2 JS -->
+<script src="{% static 'vendor/select2/select2.min.js' %}"></script>
+<script>
+    $(document).ready(function() {
+        $('.select2-atribuicao').select2({
+            placeholder: "Escolha a função...",
+            allowClear: false,
+            width: '100%'
+        });
+
+        // Feedback visual nas linhas da tabela
+        $('.select2-atribuicao').on('change', function() {
+            if ($(this).val()) {
+                $(this).closest('tr').addClass('bg-success-light');
+            } else {
+                $(this).closest('tr').removeClass('bg-success-light');
+            }
+        });
+
+        // Estilo customizado para Select2 em Dark Mode
+        if ($('body').hasClass('dark-mode')) {
+            $('.select2-selection').css({
+                'background-color': '#2d3748',
+                'border-color': '#4a5568',
+                'color': '#e2e8f0'
+            });
+        }
+    });
+</script>
+<style>
+    .bg-success-light {
+        background-color: rgba(28, 200, 138, 0.05) !important;
+    }
+    body.dark-mode .bg-success-light {
+        background-color: rgba(28, 200, 138, 0.1) !important;
+    }
+</style>
+{% endblock %}

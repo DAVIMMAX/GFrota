@@ -1,23 +1,21 @@
 {% extends 'base.html' %}
 {% load static %}
 
-
-{% block title %}GFrota - Lista de Apresentações{% endblock %}
+{% block title %}GFrota - Guarnições Ativas{% endblock %}
 
 {% block content %}
 <div class="d-sm-flex align-items-center justify-content-between mb-4">
-    <h1 class="h3 mb-0 text-gray-800">Apresentações Cadastradas</h1>
-
+    <h1 class="h3 mb-0 text-gray-800">Guarnições de Serviço Ativas</h1>
+    {% if request.user.is_cadastrador %}
+    <a href="{% url 'operacional:cadastro_apresentacao' %}" class="btn btn-sm btn-primary shadow-sm">
+        <i class="fas fa-plus fa-sm text-white-50 mr-1"></i> Nova Apresentação
+    </a>
+    {% endif %}
 </div>
 
 <div class="card shadow mb-4">
-    <div class="card-header py-3 d-flex align-items-center justify-content-between">
-        <h6 class="m-0 font-weight-bold text-primary">Lista de Apresentações Cadastradas</h6>
-        {% if request.user.is_cadastrador %}
-        <a href="{% url 'operacional:cadastro_apresentacao' %}" class="btn btn-sm btn-primary shadow-sm">
-            <i class="fas fa-plus fa-sm text-white-50 mr-1"></i> Nova Apresentação
-        </a>
-        {% endif %}
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Apresentações em Andamento (Horário não encerrado)</h6>
     </div>
     <div class="card-body">
         <div class="table-responsive text-center">
@@ -28,56 +26,52 @@
                         <th>Turno</th>
                         <th>Horário Inicial</th>
                         <th>Horário Final</th>
+                        <th>Observação</th>
                         <th>Integrantes</th>
-                        <th>Ações</th>
                         <th class="text-center" style="width: 100px;">Ações</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for apresentacao in apresentacoes %}
+                    {% for apresentacao in apresentacoes_ativas %}
                     <tr>
-                        {% if apresentacao.tipo_apresentacao == 'viatura' %}
-                        <td class="align-middle"><strong><i class="fas fa-car" caption="Viatura"></i></strong>
-                            <p>viatura
-                            </p>
-
+                        <td class="align-middle">
+                            {% if apresentacao.tipo_apresentacao == 'viatura' %}
+                            <strong><i class="fas fa-car"></i></strong>
+                            <p class="small mb-0">Viatura</p>
+                            {% elif apresentacao.tipo_apresentacao == 'aeronave' %}
+                            <strong><i class="fas fa-plane"></i></strong>
+                            <p class="small mb-0">Aeronave</p>
+                            {% elif apresentacao.tipo_apresentacao == 'solo' %}
+                            <strong><i class="fas fa-street-view"></i></strong>
+                            <p class="small mb-0">Solo</p>
+                            {% else %}
+                            <strong><i class="fas fa-exclamation-triangle"></i></strong>
+                            <p class="small mb-0">Erro</p>
+                            {% endif %}
                         </td>
-                        {% elif apresentacao.tipo_apresentacao == 'aeronave' %}
-                        <td class="align-middle"><strong><i class="fas fa-plane"></i></strong>
-                            <p>aeronave</p>
-                        </td>
-                        {% elif apresentacao.tipo_apresentacao == 'solo' %}
-                        <td class="align-middle"><strong><i class="fas fa-street-view"></i></strong>
-                            <p>solo</p>
-                        </td>
-
-                        {% else %}
-                        <td class="align-middle"> <Strong><i class="fas fa-error"></i>Erro</Strong></td>
-                        {% endif %}
                         <td class="align-middle">{{ apresentacao.turno|default:"-" }}</td>
-                        <td class="align-middle">{{ apresentacao.horario_inicial|default:"-" }}</td>
-                        <td class="align-middle">{{ apresentacao.horario_final|default:"-" }}</td>
-                        <td class="align-middle">{{ apresentacao.observacao|default:"-" }}</td>
+                        <td class="align-middle">{{ apresentacao.horario_inicial|date:"d/m/Y H:i" }}</td>
+                        <td class="align-middle">{{ apresentacao.horario_final|date:"d/m/Y H:i" }}</td>
+                        <td class="align-middle small">{{ apresentacao.observacao|default:"-" }}</td>
                         <td class="align-middle text-left">
                             {% for integrante in apresentacao.equipe_com_radios %}
-                            <div class="badge badge-primary p-1 mb-1"
-                                style="font-size: 0.8rem; display: block; width: fit-content;">
-                                <small><i class="fas fa-user mr-1"></i> {{ integrante.nome }}</small>
+                            <div class="badge badge-primary p-2 mb-1"
+                                style="font-size: 0.85rem; display: block; width: fit-content;">
+                                <i class="fas fa-user mr-1"></i> {{ integrante.nome }}
                                 {% if integrante.radio %}
-                                <span class="ml-1 py-0 px-1 rounded-pill bg-white text-primary font-weight-bold"
-                                    style="font-size: 0.7rem;">
-                                    Rádio: {{ integrante.radio }}
+                                <span class="ml-2 py-1 px-2 rounded-pill bg-white text-primary font-weight-bold"
+                                    style="font-size: 0.75rem;">
+                                    <i class="fas fa-walkie-talkie"></i> Rádio: {{ integrante.radio }}
                                 </span>
                                 {% endif %}
                             </div>
                             {% endfor %}
                         </td>
                         <td class="text-center align-middle">
-                            <a href="{% url 'operacional:perfil_apresentacao' apresentacao.id %}"
-                                class="btn btn-info btn-circle btn-sm" title="Ver Detalhes">
+                            <a href="#" class="btn btn-info btn-circle btn-sm" title="Ver Detalhes">
                                 <i class="fas fa-eye"></i>
                             </a>
-                            {% if request.user.is_cadastrador and apresentacao.is_ativa %}
+                            {% if request.user.is_cadastrador or request.user.is_operador %}
                             <a href="{% url 'operacional:editar_apresentacao' apresentacao.id %}"
                                 class="btn btn-warning btn-circle btn-sm" title="Editar">
                                 <i class="fas fa-edit"></i>
@@ -95,8 +89,8 @@
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="7" class="text-center py-4">
-                            Nenhuma apresentação cadastrada no sistema ainda.
+                        <td colspan="7" class="text-center py-4 text-muted">
+                            Não existem guarnições ativas no momento.
                         </td>
                     </tr>
                     {% endfor %}
@@ -112,14 +106,12 @@
 {% endblock %}
 
 {% block extra_js %}
-<!-- Page level plugins -->
 <script src="{% static 'vendor/datatables/jquery.dataTables.min.js' %}"></script>
 <script src="{% static 'vendor/datatables/dataTables.bootstrap4.min.js' %}"></script>
-
-<!-- Page level custom scripts -->
 <script>
     $(document).ready(function () {
         $('#dataTable').DataTable({
+            "order": [[3, "asc"]], // Ordenar por horário final (mais próximos de encerrar primeiro)
             "language": {
                 "sEmptyTable": "Nenhum registro encontrado",
                 "sInfo": "Mostrando de _START_ até _END_ de _TOTAL_ registros",
@@ -137,10 +129,6 @@
                     "sPrevious": "Anterior",
                     "sFirst": "Primeiro",
                     "sLast": "Último"
-                },
-                "oAria": {
-                    "sSortAscending": ": Ordenar colunas de forma ascendente",
-                    "sSortDescending": ": Ordenar colunas de forma descendente"
                 }
             }
         });

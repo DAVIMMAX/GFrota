@@ -62,7 +62,8 @@
         <div class="card shadow mb-4 border-bottom-primary">
             <div class="profile-header">
                 {% if request.user.is_cadastrador %}
-                <a href="{% url 'usuarios:edicao' usuario.pk %}" class="btn btn-light btn-sm btn-edit-profile shadow-sm">
+                <a href="{% url 'usuarios:edicao' usuario.pk %}"
+                    class="btn btn-light btn-sm btn-edit-profile shadow-sm">
                     <i class="fas fa-edit fa-sm text-primary"></i> Editar
                 </a>
                 {% endif %}
@@ -79,7 +80,7 @@
                 <p class="text-muted mb-0">{{ usuario.cargo|default:"Cargo não definido" }}</p>
                 {% if usuario.orgao_id %}
                 <p class="text-xs text-primary font-weight-bold text-uppercase mb-1"><i
-                        class="fas fa-building mr-1"></i> {{ usuario.orgao_id.orgao }}</p>
+                        class="fas fa-building mr-1"></i> {{ usuario.orgao_id.nome }}</p>
                 {% endif %}
             </div>
 
@@ -101,27 +102,32 @@
                         <div class="row">
                             <div class="col-md-6 mb-3 info-card">
                                 <h6 class="text-xs font-weight-bold text-primary text-uppercase mb-1">Nome Completo</h6>
-                                <p class="mb-0 text-gray-800"><i class="fas fa-id-card"></i> {{ usuario.nome_completo|default:"Não informado" }}</p>
+                                <p class="mb-0 text-gray-800"><i class="fas fa-id-card"></i> {{
+                                    usuario.nome_completo|default:"Não informado" }}</p>
                             </div>
 
                             <div class="col-md-6 mb-3 info-card">
                                 <h6 class="text-xs font-weight-bold text-primary text-uppercase mb-1">E-mail</h6>
-                                <p class="mb-0 text-gray-800"><i class="fas fa-envelope"></i> {{ usuario.email|default:"Não informado" }}</p>
+                                <p class="mb-0 text-gray-800"><i class="fas fa-envelope"></i> {{
+                                    usuario.email|default:"Não informado" }}</p>
                             </div>
 
                             <div class="col-md-6 mb-3 info-card">
                                 <h6 class="text-xs font-weight-bold text-primary text-uppercase mb-1">CPF</h6>
-                                <p class="mb-0 text-gray-800"><i class="fas fa-fingerprint"></i> {{ usuario.cpf|default:"Não informado" }}</p>
+                                <p class="mb-0 text-gray-800"><i class="fas fa-fingerprint"></i> {{
+                                    usuario.cpf|default:"Não informado" }}</p>
                             </div>
 
                             <div class="col-md-6 mb-3 info-card">
                                 <h6 class="text-xs font-weight-bold text-primary text-uppercase mb-1">Matrícula</h6>
-                                <p class="mb-0 text-gray-800"><i class="fas fa-hashtag"></i> {{ usuario.matricula|default:"Não informado" }}</p>
+                                <p class="mb-0 text-gray-800"><i class="fas fa-hashtag"></i> {{
+                                    usuario.matricula|default:"Não informado" }}</p>
                             </div>
 
                             <div class="col-md-6 mb-3 info-card">
                                 <h6 class="text-xs font-weight-bold text-primary text-uppercase mb-1">Nº de Ordem</h6>
-                                <p class="mb-0 text-gray-800"><i class="fas fa-sort-numeric-down"></i> {{ usuario.numero_ordem|default:"Não informado" }}</p>
+                                <p class="mb-0 text-gray-800"><i class="fas fa-sort-numeric-down"></i> {{
+                                    usuario.numero_ordem|default:"Não informado" }}</p>
                             </div>
                         </div>
                     </div>
@@ -138,12 +144,14 @@
 
                             <div class="col-md-6 mb-3 info-card">
                                 <h6 class="text-xs font-weight-bold text-primary text-uppercase mb-1">Último Login</h6>
-                                <p class="mb-0 text-gray-800"><i class="fas fa-clock"></i> {{ usuario.last_login|date:"d/m/Y H:i"|default:"Nunca logou" }}</p>
+                                <p class="mb-0 text-gray-800"><i class="fas fa-clock"></i> {{
+                                    usuario.last_login|date:"d/m/Y H:i"|default:"Nunca logou" }}</p>
                             </div>
 
                             <div class="col-md-6 mb-3 info-card">
                                 <h6 class="text-xs font-weight-bold text-primary text-uppercase mb-1">Função Base</h6>
-                                <p class="mb-0 text-gray-800"><i class="fas fa-briefcase"></i> {{ usuario.funcao|default:"Sem função atribuída" }}</p>
+                                <p class="mb-0 text-gray-800"><i class="fas fa-briefcase"></i> {{
+                                    usuario.funcao|default:"Sem função atribuída" }}</p>
                             </div>
 
                             <div class="col-12 mt-3">
@@ -152,7 +160,7 @@
                                 {% if usuario.get_all_roles %}
                                 {% for r in usuario.get_all_roles %}
                                 <span class="badge badge-primary role-badge shadow-sm"><i
-                                        class="fas fa-shield-alt mr-1"></i> {{ r.role }}</span>
+                                        class="fas fa-shield-alt mr-1"></i> {{ r.nome }}</span>
                                 {% endfor %}
                                 {% else %}
                                 <span class="text-muted font-italic text-sm">Nenhuma permissão específica

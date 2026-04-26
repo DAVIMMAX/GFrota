@@ -4,20 +4,20 @@ from .models import Orgao, Role, Funcao, Cargo, Usuario
 
 @admin.register(Orgao)
 class OrgaoAdmin(admin.ModelAdmin):
-    list_display = ('id', 'orgao')
-    search_fields = ('orgao',)
+    list_display = ('id', 'nome')
+    search_fields = ('nome',)
 
 
 @admin.register(Role)
 class RoleAdmin(admin.ModelAdmin):
-    list_display = ('id', 'role')
-    search_fields = ('role',)
+    list_display = ('id', 'nome')
+    search_fields = ('nome',)
 
 
 @admin.register(Funcao)
 class FuncaoAdmin(admin.ModelAdmin):
-    list_display = ('id', 'nome_funcao')
-    search_fields = ('nome_funcao',)
+    list_display = ('id', 'nome')
+    search_fields = ('nome',)
     filter_horizontal = ('roles',)
 
 

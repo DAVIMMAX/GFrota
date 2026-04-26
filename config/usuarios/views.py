@@ -4,6 +4,9 @@ from django.views.generic import CreateView, ListView, UpdateView, TemplateView,
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from .forms import UsuarioCreationForm, UsuarioChangeForm
 from .models import Usuario
+from django.utils import timezone
+from frota.models import Viatura
+from operacional.models import Apresentacao
 
 class UsuarioCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     model = Usuario
@@ -36,6 +39,16 @@ class UsuarioUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 
 class UsuarioHomeView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
     template_name = 'usuarios/home.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['total_viaturas'] = Viatura.objects.count()
+        context['total_ativas'] = Apresentacao.objects.filter(horario_final__gt=timezone.now()).count()
+        context['total_emprego'] = Viatura.objects.filter(status_viatura_id__status="EM USO").count()
+        context['total_disponivel'] = Viatura.objects.filter(status_viatura_id__status="DISPONÍVEL").count()
+
+
+        return context
 
     def test_func(self):
         usuario_logado = self.request.user

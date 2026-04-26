@@ -1,0 +1,196 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block title %}GFrota - Cadastro de Ocorrência{% endblock %}
+
+{% block extra_css %}
+<!-- Select2 CSS da pasta local -->
+<link href="{% static 'vendor/select2/select2.min.css' %}" rel="stylesheet" />
+<style>
+    /* Customização Select2 para o tema Gfrota (Dark Mode / Glassmorphism) */
+    .select2-container--default .select2-selection--multiple {
+        background-color: rgba(15, 23, 42, 0.6) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        border-radius: 12px !important;
+        padding: 5px !important;
+        min-height: 45px !important;
+    }
+
+    .select2-container--default.select2-container--focus .select2-selection--multiple {
+        border-color: #4e73df !important;
+        box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25) !important;
+    }
+
+    .select2-container--default .select2-selection--multiple .select2-selection__choice {
+        background-color: #4e73df !important;
+        border: none !important;
+        color: white !important;
+        border-radius: 6px !important;
+        padding: 4px 10px !important;
+        margin-top: 5px !important;
+        display: flex !important;
+        align-items: center !important;
+    }
+
+    .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+        color: rgba(255, 255, 255, 0.9) !important;
+        margin-right: 10px !important;
+        border: none !important;
+        font-weight: bold !important;
+    }
+
+    .select2-dropdown {
+        background-color: #1e293b !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        border-radius: 12px !important;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5) !important;
+        color: #f8fafc !important;
+    }
+
+    .select2-container--default .select2-search--inline .select2-search__field {
+        color: #f8fafc !important;
+        font-family: inherit !important;
+        margin-top: 7px !important;
+    }
+
+    .select2-container--default .select2-results__option--highlighted[aria-selected] {
+        background-color: #4e73df !important;
+    }
+
+    .select2-results__option {
+        padding: 8px 12px !important;
+        font-size: 0.9rem !important;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-xl-8 col-lg-10 mx-auto">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">Registrar Nova Ocorrência</h6>
+            </div>
+
+            <div class="card-body">
+                <p class="text-muted small mb-4">Selecione as guarnições envolvidas e descreva os detalhes do evento.
+                </p>
+
+                <form method="POST" id="formOcorrencia">
+                    {% csrf_token %}
+
+                    {% crispy form %}
+
+                    <hr class="mt-4">
+
+                    <div class="d-flex justify-content-end mt-3">
+                        <a href="{% url 'operacional:listar_ocorrencias' %}" class="btn btn-secondary mr-2">
+                            <i class="fas fa-times fa-sm text-white-50 mr-1"></i> Cancelar
+                        </a>
+                        <button type="button" id="btnAbreConfirmacao" class="btn btn-primary">
+                            <i class="fas fa-save fa-sm text-white-50 mr-1"></i> Confirmar Ocorrência
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Confirmação -->
+<div class="modal fade" id="confirmacaoModal" tabindex="-1" role="dialog" aria-labelledby="modalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="modalLabel"><i class="fas fa-exclamation-triangle mr-2"></i>Conferência de
+                    Ocorrência</h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row" id="resumoConteudo">
+                    <!-- Preenchido via Javascript -->
+                </div>
+            </div>
+            <div class="modal-footer bg-light">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Corrigir</button>
+                <button type="button" id="btnConfirmarFinal" class="btn btn-primary px-4">
+                    <i class="fas fa-check mr-1"></i> Salvar Registro
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Select2 JS da pasta local -->
+<script src="{% static 'vendor/select2/select2.min.js' %}"></script>
+<script>
+    $(document).ready(function () {
+        // 1. Inicialização do Select2
+        $('#id_guarnicoes_id').select2({
+            placeholder: "Pesquise guarnições envolvidas...",
+            allowClear: true,
+            width: '100%'
+        });
+
+        // 2. Lógica do Modal
+        const btnAbre = document.getElementById('btnAbreConfirmacao');
+        const btnFinal = document.getElementById('btnConfirmarFinal');
+        const modal = $('#confirmacaoModal');
+        const form = document.getElementById('formOcorrencia');
+
+        if (btnFinal) {
+            btnFinal.addEventListener('click', function () {
+                this.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Gravando...';
+                this.disabled = true;
+                form.submit();
+            });
+        }
+
+        if (btnAbre) {
+            btnAbre.addEventListener('click', function () {
+                const resumo = document.getElementById('resumoConteudo');
+
+                // Coletar guarnições
+                const guarnicoes = $('#id_guarnicoes_id').select2('data');
+                const guarnicoesHtml = guarnicoes.length > 0
+                    ? guarnicoes.map(g => `<li class="mb-1">${g.text}</li>`).join('')
+                    : '<li class="text-danger italic">Nenhuma guarnição vinculada</li>';
+
+                const dados = [
+                    { label: 'Tipo de Ocorrência', value: document.getElementById('id_tipo_ocorrencia').value || 'Não informado' },
+                    { label: 'Data', value: document.getElementById('id_data_ocorrencia').value || 'Não informado' },
+                    { label: 'Hora', value: document.getElementById('id_hora_ocorrencia').value || 'Não informado' },
+                    { label: 'Observações/Relato', value: document.getElementById('id_observacao').value || '<span class="text-muted">Nenhum relato adicional</span>' },
+                ];
+
+                let html = dados.map(item => `
+                    <div class="col-md-6 mb-3">
+                        <small class="text-primary font-weight-bold text-uppercase d-block mb-1" style="font-size: 0.7rem;">${item.label}</small>
+                        <div class="px-3 py-2 bg-light border-left-primary rounded shadow-sm text-dark font-weight-bold">
+                            ${item.value}
+                        </div>
+                    </div>
+                `).join('');
+
+                html += `
+                    <div class="col-12 mt-3">
+                        <small class="text-primary font-weight-bold text-uppercase d-block mb-1" style="font-size: 0.7rem;">Guarnições Envolvidas</small>
+                        <div class="p-3 bg-light border-left-info rounded shadow-sm">
+                            <ul class="mb-0 pl-3 text-dark font-weight-bold">${guarnicoesHtml}</ul>
+                        </div>
+                    </div>
+                `;
+
+                resumo.innerHTML = html;
+                modal.modal('show');
+            });
+        }
+    });
+</script>
+{% endblock %}

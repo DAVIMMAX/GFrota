@@ -2,29 +2,29 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 
 class Orgao(models.Model):
-    orgao = models.CharField(max_length=255, verbose_name='Órgão')
+    nome = models.CharField(max_length=255, verbose_name='Órgão')
 
     class Meta:
         verbose_name = 'Órgão'
         verbose_name_plural = 'Órgãos'
 
     def __str__(self):
-        return self.orgao
+        return self.nome
 
 
 class Role(models.Model):
-    role = models.CharField(max_length=255, verbose_name='Role')
+    nome = models.CharField(max_length=255, verbose_name='Role')
 
     class Meta:
         verbose_name = 'Role'
         verbose_name_plural = 'Roles'
 
     def __str__(self):
-        return self.role
+        return self.nome
 
 
 class Funcao(models.Model):
-    nome_funcao = models.CharField(max_length=255, verbose_name='Nome da Função')
+    nome = models.CharField(max_length=255, verbose_name='Nome da Função')
     roles = models.ManyToManyField(Role, blank=True, verbose_name='Roles da Função')
 
     class Meta:
@@ -32,7 +32,7 @@ class Funcao(models.Model):
         verbose_name_plural = 'Funções'
 
     def __str__(self):
-        return self.nome_funcao
+        return self.nome
 
 
 class Cargo(models.Model):
@@ -44,7 +44,7 @@ class Cargo(models.Model):
         verbose_name_plural = "Cargos"
 
     def __str__(self):
-        return f"{self.nome} - {self.orgao_id.orgao}"
+        return f"{self.nome} - {self.orgao_id.nome}"
 
 
 class Usuario(AbstractUser):
@@ -79,4 +79,9 @@ class Usuario(AbstractUser):
     @property
     def is_cadastrador(self):
         # Verifica se na lista de roles existe o cadastrador
-        return self.get_all_roles.filter(role__iexact='cadastrador').exists()
+        return self.get_all_roles.filter(nome__iexact='cadastrador').exists()
+
+    @property
+    def is_operador(self):
+        # Verifica se na lista de roles existe o operador
+        return self.get_all_roles.filter(nome__iexact='operador').exists()

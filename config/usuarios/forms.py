@@ -43,9 +43,9 @@ class UsuarioCreationForm(UserCreationForm):
 
         # Esconde a opção Admin dos perfis (Role) e Funções
         if 'roles' in self.fields:
-            self.fields['roles'].queryset = self.fields['roles'].queryset.exclude(role__icontains='admin')
+            self.fields['roles'].queryset = self.fields['roles'].queryset.exclude(nome__icontains='admin')
         if 'funcao' in self.fields:
-            self.fields['funcao'].queryset = self.fields['funcao'].queryset.exclude(nome_funcao__icontains='admin')
+            self.fields['funcao'].queryset = self.fields['funcao'].queryset.exclude(nome__icontains='admin')
 
     class Meta(UserCreationForm.Meta):
         model = Usuario
@@ -102,9 +102,9 @@ class UsuarioChangeForm(UserChangeForm):
 
         # Esconde a opção Admin dos perfis (Role) e Funções
         if 'roles' in self.fields:
-            self.fields['roles'].queryset = self.fields['roles'].queryset.exclude(role__icontains='admin')
+            self.fields['roles'].queryset = self.fields['roles'].queryset.exclude(nome__icontains='admin')
         if 'funcao' in self.fields:
-            self.fields['funcao'].queryset = self.fields['funcao'].queryset.exclude(nome_funcao__icontains='admin')
+            self.fields['funcao'].queryset = self.fields['funcao'].queryset.exclude(nome__icontains='admin')
 
     class Meta(UserChangeForm.Meta):
         model = Usuario

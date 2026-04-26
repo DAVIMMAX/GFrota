@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+
+{% block title %}GFrota - Lista de Rádios{% endblock %}
+
+{% block content %}
+
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Lista de Radios</h1>
+</div>
+
+<div class="row">
+    <div class="col-xl-12 col-lg-12">
+        <!-- Cartão Principal -->
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">Rádios Cadastradas</h6>
+            </div>
+
+            <div class="card-body">
+                <div class="table-responsive align-items-center text-center">
+                    <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                        <thead>
+                            <tr>
+                                <th>Prefixo</th>
+                                <th>Tipo</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for radio in radios %}
+                            <tr>
+                                <td>{{ radio.prefixo }}</td>
+                                <td>{{ radio.tipo_radio_id.tipo }}</td>
+                                <td>
+                                    <a href="{% url 'frota:editar_radio' radio.pk %}" class="btn btn-primary btn-sm">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="{% url 'frota:deletar_radio' radio.pk %}" class="btn btn-danger btn-sm">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

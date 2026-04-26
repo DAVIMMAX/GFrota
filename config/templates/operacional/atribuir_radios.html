@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}GFrota - Atribuir Rádios{% endblock %}
+
+{% block extra_css %}
+<!-- Select2 CSS para busca rápida -->
+<link href="{% static 'vendor/select2/select2.min.css' %}" rel="stylesheet" />
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-10 mx-auto">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">Atribuir Rádios: {{ apresentacao.turno }}</h6>
+                <span class="badge badge-info">{{ apresentacao.get_tipo_apresentacao_display }}</span>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>Integrante</th>
+                                    <th style="width: 40%;">Rádio</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for usuario in usuarios %}
+                                <tr>
+                                    <td class="align-middle">
+                                        <strong>{{ usuario.cargo|default:"" }} {{ usuario.nome_completo|default:usuario.username }}</strong>
+                                        <div class="small text-muted">Matrícula: {{ usuario.matricula|default:"-" }}</div>
+                                    </td>
+                                    <td class="align-middle">
+                                        <select name="radio_user_{{ usuario.id }}" class="form-control select2">
+                                            <option value="">-- Sem Rádio --</option>
+                                            {% for radio in radios %}
+                                            <option value="{{ radio.id }}" {% if usuario.current_radio_id == radio.id %}selected{% endif %}>
+                                                {{ radio.prefixo }}
+                                            </option>
+                                            {% endfor %}
+                                        </select>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save mr-1"></i> Salvar Alterações
+                        </button>
+                        <a href="{% url 'operacional:listar_apresentacoes_ativas' %}" class="btn btn-secondary">
+                            Voltar
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Select2 JS -->
+<script src="{% static 'vendor/select2/select2.min.js' %}"></script>
+<script>
+    $(document).ready(function() {
+        $('.select2').select2({
+            placeholder: "Pesquisar rádio...",
+            allowClear: true,
+            width: '100%'
+        });
+    });
+</script>
+{% endblock %}
