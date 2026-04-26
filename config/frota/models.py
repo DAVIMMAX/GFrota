@@ -74,7 +74,12 @@ class Viatura(models.Model):
     @property
     def ultima_apresentacao(self):
         return self.apresentacaoviatura_set.order_by('-apresentacao_id__horario_inicial').first().apresentacao_id
-
+    @property
+    def return_foto(self):
+        if self.foto:
+            return self.foto.url
+        else:
+            return "/static/img/default_vehicle.png"
 
 class Radio(models.Model):
     prefixo = models.CharField(max_length=100, verbose_name="Prefixo", unique=True)

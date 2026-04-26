@@ -37,6 +37,7 @@ class EditViaturaView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     form_class = ViaturaChangeForm
     template_name = 'frota/editar_viatura.html'
     success_url = reverse_lazy('frota:listar_viaturas')
+    context_object_name = 'viatura'
 
     def test_func(self):
         usuario_logado = self.request.user
