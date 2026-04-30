@@ -1,0 +1,19 @@
+
+{
+  "vehicles": [
+    {
+      "name": "L200",
+      "prefix": "",
+      "mark":"",
+      "model":"",
+      "plate":"",
+      "images": {
+        "front": "img/L200/front.jpg",
+        "back": "img/L200/back.jpg",
+        "left": "img/L200/left.jpg",
+        "right": "img/L200/right.jpg"
+      }
+    }
+    
+  ]
+}
