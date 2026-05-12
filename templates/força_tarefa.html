@@ -1027,8 +1027,9 @@
                 </tr>
             </table>
         </div>
-        <div class="no-print" style="text-align: center; margin-top: 0px;">
-            <button>Gerar Imagem para Impressão</button>
+        <div class="no-print" style="text-align: center; margin: 20px 0;">
+            <button style="padding: 10px 20px; font-weight: bold; cursor: pointer;">Gerar Imagem para Impressão</button>
+            <button id="btn-limpar" style="padding: 10px 20px; font-weight: bold; cursor: pointer; background-color: #f44336; color: white; border: none; margin-left: 10px; border-radius: 2px;">Limpar Formulário</button>
         </div>
 
 
@@ -1164,6 +1165,106 @@
 </div>
     </div>
 
+    <script>
+        // --- LÓGICA DE PERSISTÊNCIA (SALVAR/CARREGAR) ---
+        (function() {
+            const storageKey = 'vistoria_data_' + window.location.pathname;
+
+            function saveForm() {
+                const formData = { inputs: {}, markers: [] };
+                
+                // Salva campos normais
+                const inputs = document.querySelectorAll('input, textarea, select');
+                inputs.forEach((input, index) => {
+                    const key = input.id || input.name || 'input_' + index;
+                    if (input.type === 'checkbox') {
+                        formData.inputs[key] = input.checked;
+                    } else {
+                        formData.inputs[key] = input.value;
+                    }
+                });
+
+                // Salva marcações de danos
+                const containers = document.querySelectorAll('.damage-container');
+                containers.forEach((container, cIndex) => {
+                    const containerMarkers = [];
+                    container.querySelectorAll('.damage-marker').forEach(marker => {
+                        containerMarkers.push({
+                            left: marker.style.left,
+                            top: marker.style.top
+                        });
+                    });
+                    formData.markers[cIndex] = containerMarkers;
+                });
+
+                localStorage.setItem(storageKey, JSON.stringify(formData));
+            }
+
+            function loadForm() {
+                const savedData = localStorage.getItem(storageKey);
+                if (!savedData) return;
+
+                const formData = JSON.parse(savedData);
+                
+                // Restaura campos normais
+                const inputs = document.querySelectorAll('input, textarea, select');
+                inputs.forEach((input, index) => {
+                    const key = input.id || input.name || 'input_' + index;
+                    if (formData.inputs && formData.inputs[key] !== undefined) {
+                        if (input.type === 'checkbox') {
+                            input.checked = formData.inputs[key];
+                        } else {
+                            input.value = formData.inputs[key];
+                        }
+                    }
+                });
+
+                // Restaura marcações de danos
+                if (formData.markers) {
+                    const containers = document.querySelectorAll('.damage-container');
+                    containers.forEach((container, cIndex) => {
+                        const savedMarkers = formData.markers[cIndex];
+                        if (savedMarkers) {
+                            savedMarkers.forEach(mPos => {
+                                // Cria o elemento visual do marcador
+                                const marker = document.createElement('div');
+                                marker.classList.add('damage-marker');
+                                marker.style.left = mPos.left;
+                                marker.style.top = mPos.top;
+                                
+                                // Adiciona evento de remoção (clique duplo ou clique simples conforme lógica original)
+                                marker.addEventListener('click', function(e) {
+                                    e.stopPropagation();
+                                    marker.remove();
+                                    saveForm();
+                                });
+
+                                container.appendChild(marker);
+                            });
+                        }
+                    });
+                }
+            }
+
+            // Salva sempre que houver mudança ou clique na imagem
+            document.addEventListener('input', saveForm);
+            document.addEventListener('change', saveForm);
+            document.querySelectorAll('.damage-container').forEach(c => {
+                c.addEventListener('click', () => setTimeout(saveForm, 100));
+            });
+
+            // Carrega ao abrir a página
+            window.addEventListener('load', loadForm);
+
+            // Botão Limpar
+            document.getElementById('btn-limpar').addEventListener('click', function() {
+                if (confirm('Deseja realmente limpar todos os campos e marcações?')) {
+                    localStorage.removeItem(storageKey);
+                    location.reload();
+                }
+            });
+        })();
+    </script>
 </body>
 
 </html>
